@@ -11,14 +11,7 @@ pnpm install
 cp .env.example .env.local
 ```
 
-Set `DATABASE_URL` to a Neon Postgres connection string and replace `BETTER_AUTH_SECRET` with a random value of at least 32 characters.
-
-Create and apply the initial schema migration:
-
-```bash
-pnpm db:generate
-pnpm db:migrate
-```
+Set `DATABASE_URL` to a Neon Postgres connection string and replace `BETTER_AUTH_SECRET` with a random value of at least 32 characters (use `openssl rand -hex 32`).
 
 Then start the app:
 
@@ -36,3 +29,13 @@ The Hono API is mounted at `/api`, with a smoke-test endpoint at `/api/health` a
 - `src/app/api/[[...route]]/route.ts` adapts Hono to Next.js Route Handlers.
 - `src/lib/auth.ts` contains the Better Auth server configuration.
 - `src/lib/auth-client.ts` contains the browser auth client.
+
+## Database Migration
+If you are migrating to a fresh database, you need to run
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
+
+for the initial schema migration before starting the app.
