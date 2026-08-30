@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QR Hunt
 
-## Getting Started
+A single Next.js App Router application with a shared Drizzle schema, Neon Postgres, Hono RPC, Zod validation, and Better Auth.
 
-First, run the development server:
+## Setup
+
+Install dependencies with pnpm and create a local environment file:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set `DATABASE_URL` to a Neon Postgres connection string and replace `BETTER_AUTH_SECRET` with a random value of at least 32 characters.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create and apply the initial schema migration:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm db:generate
+pnpm db:migrate
+```
 
-## Learn More
+Then start the app:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The Hono API is mounted at `/api`, with a smoke-test endpoint at `/api/health` and a validated example endpoint at `/api/echo`. Better Auth is mounted at `/api/auth/*`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/db/schema.ts` contains the Drizzle tables and inferred types; import browser-safe types from `src/db/types.ts`.
+- `src/db/index.ts` creates the server-only Neon/Drizzle instance.
+- `src/server/api.ts` defines the Hono app and exports `AppType` for typed RPC clients.
+- `src/app/api/[[...route]]/route.ts` adapts Hono to Next.js Route Handlers.
+- `src/lib/auth.ts` contains the Better Auth server configuration.
+- `src/lib/auth-client.ts` contains the browser auth client.
