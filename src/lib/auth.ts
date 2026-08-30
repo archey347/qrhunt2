@@ -2,6 +2,7 @@ import "server-only";
 
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
+import { anonymous } from "better-auth/plugins";
 
 import { db } from "@/db";
 import { authSchema } from "@/db/schema";
@@ -22,4 +23,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [
+    anonymous({
+      emailDomainName: "anonymous.qrhunt.scoutslab.org.uk",
+    })
+  ]
 });
