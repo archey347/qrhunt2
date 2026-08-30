@@ -78,6 +78,121 @@ export const verification = pgTable(
 
 export const authSchema = { user, session, account, verification };
 
+export const games = pgTable(
+  "games",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("draft"),
+    pauseReason: text("pause_reason"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("games_name_idx").on(table.name)],
+);
+
+export const game_admins = pgTable(
+  "game_admins",
+  {
+    id: text("id").primaryKey(),
+    gameId: text("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("game_admins_game_id_idx").on(table.gameId),
+    index("game_admins_user_id_idx").on(table.userId),
+  ],
+);
+
+export const teams = pgTable(
+  "teams",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    gameId: text("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("teams_game_id_idx").on(table.gameId)],
+);
+
+export const team_memberships = pgTable(
+  "team_memberships",
+  {
+    id: text("id").primaryKey(),
+    teamId: text("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("team_memberships_team_id_idx").on(table.teamId),
+    index("team_memberships_user_id_idx").on(table.userId),
+  ],
+);
+
+export const qr_codes = pgTable(
+  "qr_codes",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    hint: text("hint").notNull(),
+    latitude: text("latitude"),
+    longitude: text("longitude"),
+    code: text("code").notNull().unique(),
+    gameId: text("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("qr_codes_game_id_idx").on(table.gameId)],
+);
+
+export const qr_code_scans = pgTable(
+  "qr_code_scans",
+  {
+    id: text("id").primaryKey(),
+    qrCodeId: text("qr_code_id")
+      .notNull()
+      .references(() => qr_codes.id, { onDelete: "cascade" }),
+    teamId: text("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("qr_code_scans_qr_code_id_idx").on(table.qrCodeId),
+    index("qr_code_scans_team_id_idx").on(table.teamId),
+    index("qr_code_scans_user_id_idx").on(table.userId),
+  ],
+);
+
+export const gameSchema = {
+  games,
+  game_admins,
+  teams,
+  team_memberships,
+  qr_codes,
+  qr_code_scans,
+};
+
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
 export type Session = typeof session.$inferSelect;
@@ -86,3 +201,15 @@ export type Account = typeof account.$inferSelect;
 export type NewAccount = typeof account.$inferInsert;
 export type Verification = typeof verification.$inferSelect;
 export type NewVerification = typeof verification.$inferInsert;
+export type Game = typeof games.$inferSelect;
+export type NewGame = typeof games.$inferInsert;
+export type GameAdmin = typeof game_admins.$inferSelect;
+export type NewGameAdmin = typeof game_admins.$inferInsert;
+export type Team = typeof teams.$inferSelect;
+export type NewTeam = typeof teams.$inferInsert;
+export type TeamMembership = typeof team_memberships.$inferSelect;
+export type NewTeamMembership = typeof team_memberships.$inferInsert;
+export type QrCode = typeof qr_codes.$inferSelect;
+export type NewQrCode = typeof qr_codes.$inferInsert;
+export type QrCodeScan = typeof qr_code_scans.$inferSelect;
+export type NewQrCodeScan = typeof qr_code_scans.$inferInsert;

@@ -15,6 +15,13 @@
       "when": 1788092905929,
       "tag": "0001_military_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788095915584,
+      "tag": "0002_wealthy_smasher",
+      "breakpoints": true
     }
   ]
 }
